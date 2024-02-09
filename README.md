@@ -1,6 +1,6 @@
 # expy-tui
 A general expenses tracking TUI 
-- Built in Python with [Textual](https://github.com/Textualize/textual) and [sqlite3](https://docs.python.org/3/library/sqlite3.html)
+- Built in Python 3.10.11 with [Textual](https://github.com/Textualize/textual) and [sqlite3](https://docs.python.org/3/library/sqlite3.html)
 - Linted by [Ruff](https://github.com/astral-sh/ruff)
 - Tested by [pytest](https://github.com/pytest-dev/pytest)
 
