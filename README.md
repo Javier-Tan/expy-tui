@@ -1,5 +1,8 @@
 # expy-tui
-A general expenses tracking TUI built in Python with [Textual](https://github.com/Textualize/textual) and [sqlite3](https://docs.python.org/3/library/sqlite3.html)
+A general expenses tracking TUI 
+- Built in Python with [Textual](https://github.com/Textualize/textual) and [sqlite3](https://docs.python.org/3/library/sqlite3.html)
+- Linted by [Ruff](https://github.com/astral-sh/ruff)
+- Tested by [pytest](https://github.com/pytest-dev/pytest)
 
 ## Running expy
 Requirements can be found in `tools/requirements.txt`, and can be installed by running `pip install -r tools/requirements.txt`
