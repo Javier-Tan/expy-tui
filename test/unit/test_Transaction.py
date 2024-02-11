@@ -1,8 +1,8 @@
-#from datetime import datetime
+from typing import Optional
 from expy_tui.transaction.Transaction import Transaction
 
 class TestTransaction():
-    id: int = 1
+    id: Optional[int] = None
     # Date and time (GMT): Saturday, 1 January 2000 0:00:00
     date_epoch_time: int = 946684800
     category: str = "Test category"

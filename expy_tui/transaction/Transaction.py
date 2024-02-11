@@ -1,9 +1,10 @@
+from typing import Optional
 from pydantic.dataclasses import dataclass
 from datetime import datetime
 
 @dataclass
 class Transaction():
-    id: int
+    id: Optional[int]
     date: datetime
     category: str
     description: str
