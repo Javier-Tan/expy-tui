@@ -3,8 +3,8 @@ from expy_tui.transaction.Transaction import Transaction
 
 class TestTransaction():
     id: int = 1
-    
-    date_epoch_time: int = 946684800 # Date and time (GMT): Saturday, 1 January 2000 0:00:00
+    # Date and time (GMT): Saturday, 1 January 2000 0:00:00
+    date_epoch_time: int = 946684800
     category: str = "Test category"
     description: str = "Test description"
     value_cents: float = 9999 # In cents
