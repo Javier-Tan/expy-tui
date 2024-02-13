@@ -42,6 +42,8 @@ target-version = "py310"
 select = ["ALL"]
 ignore = [
     "ANN101",
+    "D203",
+    "D213",
     ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
@@ -55,6 +57,8 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 "tests/*" = [
     "D102",  # No need for test docstrings
     "S101",] # Allow asserts while testing
+"__init__.py" = [
+    "D104",]
 
 [format]
 # Like Black, use double quotes for strings.
