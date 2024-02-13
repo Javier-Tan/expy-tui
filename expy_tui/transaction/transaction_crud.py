@@ -42,10 +42,11 @@ class TransactionSQLite(TransactionCRUD):
     __db_file: str = "expy_tui/data/expy.db"
     _cursor: sqlite3.Cursor
 
-    def __new__(cls) -> None:
+    def __new__(cls, db_file: str) -> None:
         """Implement singleton pattern and performs initialisation for TransactionCRUDSQLite."""
         if cls._instance is None:
             cls._instance = super().__new__(cls)
+            cls.__db_file = db_file
             con = sqlite3.connect(cls.__db_file)
             cls._cursor = con.cursor()
 
