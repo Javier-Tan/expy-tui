@@ -12,7 +12,7 @@ class Transaction:
     """Transaction dataclass, holds data of a single transaction."""
 
     _id: int | None = None
-    date: datetime
+    date: datetime = 0
     category: str = "Uncategorised"
     description: str = ""
     value: float  = 0 # Ingested as cents, stored as dollars
@@ -23,10 +23,18 @@ class Transaction:
         self.value /= 100
         self.cc_value /= 100
 
-    def set_value_cents(self, value: float) -> None:
-        """Store a value given as cents in dollars."""
-        self.value = value / 100
-
     def get_value_cents(self) -> int:
         """Return the transaction value as cents."""
         return self.value * 100
+
+    def get_cc_value_cents(self) -> int:
+        """Return the transaction cc value as cents."""
+        return self.cc_value * 100
+
+    def set_value_cents(self, value: float) -> None:
+        """Store the value given as cents in dollars."""
+        self.value = value / 100
+
+    def set_cc_value_cents(self, value: float) -> None:
+        """Store the cc value given as cents in dollars."""
+        self.cc_value = value / 100
