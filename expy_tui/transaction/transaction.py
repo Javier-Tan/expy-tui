@@ -1,6 +1,7 @@
 """Provides classes related to transactions.
 
 Transaction dataclass - holds data of a single transaction.
+TransactionsMetrics class - returns metrics based on a list of transactions.
 """
 from datetime import datetime
 
@@ -30,6 +31,10 @@ class Transaction:
     def get_cc_value_cents(self) -> int:
         """Return the transaction cc value as cents."""
         return self.cc_value * 100
+
+    def get_date_epoch(self) -> int:
+        """Return date value as epoch time represented as an integer."""
+        return int(self.date.timestamp())
 
     def set_value_cents(self, value: float) -> None:
         """Store the value given as cents in dollars."""
