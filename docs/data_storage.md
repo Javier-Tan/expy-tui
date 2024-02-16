@@ -1,16 +1,16 @@
 # Data stored in sqlite3
 ```
-Transactions (
- Id            INTEGER                                  PRIMARY KEY,
- Date          INTEGER                                  NOT NULL DEFAULT '0',
- Category      TEXT                                     NOT NULL DEFAULT 'M',
- Description   TEXT CHECK( LENGTH(Description) <= 50 )  NULL DEFAULT NULL,
- Value         INTEGER                                  NOT NULL DEFAULT '0',
- CCValue       INTEGER                                  NOT NULL DEFAULT '0'
+trnsaction (
+ t_id          INTEGER                                  PRIMARY KEY,
+ date          INTEGER                                  NOT NULL DEFAULT '0',
+ category      TEXT                                     NOT NULL DEFAULT "",
+ description   TEXT CHECK( LENGTH(Description) <= 50 )  NULL DEFAULT NULL,
+ value         INTEGER                                  NOT NULL DEFAULT '0',
+ cc_balue      INTEGER                                  NOT NULL DEFAULT '0'
 )
 
-TransactionDescription (
-  Type    CHAR(1)       PRIMARY KEY NOT NULL,
-  Seq     INTEGER       NOT NULL UNIQUE
+trnsaction_category_enum (
+  category    TEXT          PRIMARY KEY NOT NULL,
+  seq         INTEGER       NOT NULL UNIQUE
 )
 ```

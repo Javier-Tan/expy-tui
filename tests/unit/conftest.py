@@ -2,9 +2,10 @@
 import pytest
 
 from expy_tui.transaction.transaction import Transaction
+from expy_tui.transaction.transaction_crud import TransactionSQLite
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 def sample_transaction() -> Transaction:
     """Fixture to create a sample transaction."""
     t_id: int | None = None
@@ -23,3 +24,8 @@ def sample_transaction() -> Transaction:
         value=value_cents,
         cc_value=cc_value_cents,
     )
+
+@pytest.fixture(scope="session")
+def inmemory_sqlite_db() -> TransactionSQLite:
+    """Fixture to return in memory database."""
+    return TransactionSQLite(db_file = ":memory:")
