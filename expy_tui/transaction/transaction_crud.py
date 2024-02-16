@@ -23,7 +23,7 @@ class TransactionCRUD(ABC):
         """Return list of transactions based on filters time_range and category."""
 
     @abstractmethod
-    def get_transaction_by_id(self, _id: int) -> Transaction:
+    def get_transaction_by_id(self, t_id: int) -> Transaction:
         """Return transaction by ID."""
 
     @abstractmethod
@@ -73,7 +73,7 @@ class TransactionSQLite(TransactionCRUD):
     ) -> list[Transaction]:
         """Return list of transactions based on filters time_range and category."""
 
-    def get_transaction_by_id(self, _id: int) -> Transaction:
+    def get_transaction_by_id(self, t_id: int) -> Transaction:
         """Return transaction by ID."""
 
     def update_transaction(self, transaction: Transaction) -> bool:

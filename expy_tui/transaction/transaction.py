@@ -12,7 +12,7 @@ from pydantic.dataclasses import dataclass
 class Transaction:
     """Transaction dataclass, holds data of a single transaction."""
 
-    _id: int | None = None
+    t_id: int | None = None
     date: datetime = 0
     category: str = "Uncategorised"
     description: str = ""
