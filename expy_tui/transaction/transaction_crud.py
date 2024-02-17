@@ -117,18 +117,21 @@ class TransactionSQLite(TransactionCRUD):
         # Get transactions from DB
         get_transaction_query = "SELECT * FROM trnsaction"
 
+        filter_queries = []
         # Apply filters by appending to db query
         if date_range:
             query_datetime_filter = f"date BETWEEN {date_range[0]} AND {date_range[1]}"
-            get_transaction_query += f" WHERE {query_datetime_filter}"
+            filter_queries.append(query_datetime_filter)
         if categories:
             # Create string in format of (x,y,z) for category list
             category_str = str(categories).replace("[", "(").replace("]", ")")
             query_category_filter = f"category in {category_str}"
-            if date_range:
-                get_transaction_query += f" AND {query_category_filter}"
-            else:
-                get_transaction_query += f" WHERE {query_category_filter}"
+            filter_queries.append(query_category_filter)
+
+        if filter_queries:
+            get_transaction_query += f" WHERE {filter_queries[0]}"
+            for filter_query in filter_queries[1:]:
+                get_transaction_query += f" AND {filter_query}"
 
         cur = self._con.cursor()
         try:
