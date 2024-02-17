@@ -32,10 +32,10 @@ class TransactionCRUD(ABC):
 
     @abstractmethod
     def get_transactions_filters(
-            self, time_range: tuple[datetime, datetime] | None = None,
+            self, date_range: tuple[datetime, datetime] | None = None,
             categories: list[str] | None = None,
         ) -> list[Transaction]:
-        """Return list of transactions based on filters time_range and categories."""
+        """Return list of transactions based on filters date_range and categories."""
 
     @abstractmethod
     def get_transaction_by_id(self, t_id: int) -> Transaction:
@@ -105,31 +105,30 @@ class TransactionSQLite(TransactionCRUD):
             cur.close()
 
     def get_transactions_filters(
-            self, time_range: tuple[datetime, datetime] | None = None,
+            self, date_range: tuple[datetime, datetime] | None = None,
             categories: list[str] | None = None,
         ) -> list[Transaction]:
-        """Return list of transactions based on filters time_range and categories.
+        """Return list of transactions based on filters date_range and categories.
 
-        timerange: tuple containing 2 datetime variables [start_time, end_time],
+        date_range: tuple containing 2 datetime variables [start_date, end_date],
         will be used as a filter in the query.
-
-        category: List of categories the transactions will be from.
+        categories: List of categories the transactions will be from.
         """
         # Get transactions from DB
         get_transaction_query = "SELECT * FROM trnsaction"
-        if time_range:
-            query_datetime_filter = f"date BETWEEN {time_range[0]} AND {time_range[1]}"
-            get_transaction_query += f" WHERE {query_datetime_filter}"
 
         # Apply filters by appending to db query
+        if date_range:
+            query_datetime_filter = f"date BETWEEN {date_range[0]} AND {date_range[1]}"
+            get_transaction_query += f" WHERE {query_datetime_filter}"
         if categories:
             # Create string in format of (x,y,z) for category list
             category_str = str(categories).replace("[", "(").replace("]", ")")
-            query_category_filter = f"categories in {category_str}"
-            if time_range:
-                get_transaction_query = f" AND {query_category_filter}"
+            query_category_filter = f"category in {category_str}"
+            if date_range:
+                get_transaction_query += f" AND {query_category_filter}"
             else:
-                get_transaction_query = f" WHERE {query_category_filter}"
+                get_transaction_query += f" WHERE {query_category_filter}"
 
         cur = self._con.cursor()
         try:
