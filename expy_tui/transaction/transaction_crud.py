@@ -107,6 +107,7 @@ class TransactionSQLite(TransactionCRUD):
     def get_transactions_filters(
             self, date_range: tuple[datetime, datetime] | None = None,
             categories: list[str] | None = None,
+            value_range: tuple[int, int] | None = None,
         ) -> list[Transaction]:
         """Return list of transactions based on filters date_range and categories.
 
@@ -122,11 +123,16 @@ class TransactionSQLite(TransactionCRUD):
         if date_range:
             query_datetime_filter = f"date BETWEEN {date_range[0]} AND {date_range[1]}"
             filter_queries.append(query_datetime_filter)
+
         if categories:
             # Create string in format of (x,y,z) for category list
             category_str = str(categories).replace("[", "(").replace("]", ")")
             query_category_filter = f"category in {category_str}"
             filter_queries.append(query_category_filter)
+
+        if value_range:
+            query_value_filter = f"value BETWEEN {value_range[0]} AND {value_range[1]}"
+            filter_queries.append(query_value_filter)
 
         if filter_queries:
             get_transaction_query += f" WHERE {filter_queries[0]}"

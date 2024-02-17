@@ -41,20 +41,64 @@ class TestTransactionCRUD:
         # Test category filters
         # We know "Test category1" and "Test category2" can be found from indexes 8 to end
         start_index = 8
-        end_index = 24
+        end_index = 23
         categories = ["Test category1", "Test category2"]
 
         expected_transactions_categories = sample_transactions[start_index:end_index+1]
         categories_filter_output = inmemory_sqlite_db.get_transactions_filters(categories=categories)
         assert categories_filter_output == expected_transactions_categories
 
-        # Test category and date filters together
-        # Transactions in [2000, 2012] and have category "Test category1" can be found in [8, 12]
+        # Test value_range filters
+        # We know transactions start at 4444 and increase by 1111 every 6 transactions
+        start_index = 6
+        end_index = 17
+        value_range = [5555, 6666]
+
+        expected_transactions_value_range = sample_transactions[start_index:end_index+1]
+        value_filter_output = inmemory_sqlite_db.get_transactions_filters(value_range=value_range)
+        assert value_filter_output == expected_transactions_value_range
+
+        # Test date and categories filters together
+        # Transactions with dates between [2000, 2012]
+        # and have category "Test category1" and "Test category2" can be found in indexes [8, 12]
         start_index = 8
         end_index = 12
-        expected_transactions_category_date_range = sample_transactions[start_index:end_index+1]
 
+        expected_transactions_date_categories = sample_transactions[start_index:end_index+1]
         date_categories_filter_output = inmemory_sqlite_db.get_transactions_filters(date_range=date_range,
                                                                                     categories=categories)
+        assert date_categories_filter_output == expected_transactions_date_categories
 
-        assert date_categories_filter_output == expected_transactions_category_date_range
+        # Test date and value filters together
+        # Transactions with dates between [2000, 2012] and values between [4444, 6666]
+        # can be found in indexes [6, 17]
+        start_index = 6
+        end_index = 12
+
+        expected_transactions_date_value_range = sample_transactions[start_index:end_index+1]
+        date_value_filter_output = inmemory_sqlite_db.get_transactions_filters(date_range=date_range,
+                                                                               value_range = value_range)
+        assert date_value_filter_output == expected_transactions_date_value_range
+
+        # Test category and value filters together
+        # Transactions with categories "Test category1" and "Test category2"
+        # and have values between [5555, 6666] can be found in indexes [8, 17]
+        start_index = 8
+        end_index = 17
+
+        expected_transactions_category_value_range = sample_transactions[start_index:end_index+1]
+        categories_value_filter_output = inmemory_sqlite_db.get_transactions_filters(categories=categories,
+                                                                                     value_range = value_range)
+        assert categories_value_filter_output == expected_transactions_category_value_range
+
+        # Test date, category and value filters toether
+        # Transactions with dates between [2000, 2012] with categories "Test category1" and "Test category2"
+        # and have values between [5555, 6666] can be found in indexes [8, 12]
+        start_index = 8
+        end_index = 12
+
+        expected_transactions_category_date_value = sample_transactions[start_index:end_index+1]
+        date_categories_value_filter_output = inmemory_sqlite_db.get_transactions_filters(date_range=date_range,
+                                                                                          categories=categories,
+                                                                                          value_range = value_range)
+        assert date_categories_value_filter_output == expected_transactions_category_date_value

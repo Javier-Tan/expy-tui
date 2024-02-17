@@ -47,9 +47,9 @@ def sample_transactions() -> Transaction:
         transaction = Transaction(
             t_id=t_id + transaction_no,
             date=date_epoch,
-            category=category + str(transaction_no//8), # Change category every 8 transactions
+            category=category + str(transaction_no//8), # Change category no. every 8 transactions
             description=description,
-            value=value_cents + (transaction_no//6)*1111, # Change value every 6 transactions
+            value=value_cents + (transaction_no//6)*1111, # Increase by 1111 every 6 transactions
             cc_value=cc_value_cents + (transaction_no//6)*1111,
         )
         transaction_list.append(transaction)
