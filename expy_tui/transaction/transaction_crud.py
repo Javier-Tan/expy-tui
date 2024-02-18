@@ -34,6 +34,7 @@ class TransactionCRUD(ABC):
     def get_transactions_filters(
             self, date_range: tuple[datetime, datetime] | None = None,
             categories: list[str] | None = None,
+            value_range: tuple[int, int] | None = None,
         ) -> list[Transaction]:
         """Return list of transactions based on filters date_range and categories."""
 
@@ -146,7 +147,7 @@ class TransactionSQLite(TransactionCRUD):
         finally:
             cur.close()
 
-        return(self._convert_sqlite_rows_to_transactions(rows))
+        return([self._convert_sqlite_row_to_transactions(row) for row in rows])
 
     def get_transaction_by_id(self, t_id: int) -> Transaction:
         """Return transaction by ID."""
@@ -157,24 +158,17 @@ class TransactionSQLite(TransactionCRUD):
     def delete_transaction(self, transaction: Transaction) -> bool:
         """Delete a transaction in the database based on Transaction instance."""
 
-    def _convert_sqlite_rows_to_transactions(
-            self, rows_list: list[sqlite3.Row],
+    def _convert_sqlite_row_to_transaction(
+            self, row: sqlite3.Row,
         ) -> bool:
         """Convert Transaction data rows from db query to Transaction objects."""
-        transaction_list: list[Transaction] = []
+        t_id = row["t_id"]
+        date_time_epoch = row["date"]
+        category = row["category"]
+        description = row["description"]
+        value = row["value"]
+        cc_value = row["cc_value"]
 
-        for row in rows_list:
-            t_id = row["t_id"]
-            date_time_epoch = row["date"]
-            category = row["category"]
-            description = row["description"]
-            value = row["value"]
-            cc_value = row["cc_value"]
-
-            transaction = Transaction(t_id = t_id, date = date_time_epoch, category = category,
-                                      description = description, value = value,
-                                      cc_value = cc_value)
-
-            transaction_list.append(transaction)
-
-        return transaction_list
+        return Transaction(t_id = t_id, date = date_time_epoch, category = category,
+                            description = description, value = value,
+                            cc_value = cc_value)
