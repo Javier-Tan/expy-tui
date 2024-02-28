@@ -48,8 +48,12 @@ class TransactionCRUD(ABC):
         """
 
     @abstractmethod
-    def get_transaction_id(self, t_id: int) -> Transaction:
-        """Return transaction by ID."""
+    def get_transaction_id(self, t_id: int) -> Transaction | None:
+        """Return transaction by ID.
+
+        Returns Transaction is successful (id exists)
+        Returns None if unsuccessful (id does not exist)
+        """
 
     @abstractmethod
     def update_transaction(self, transaction: Transaction) -> bool:
@@ -181,8 +185,12 @@ class TransactionSQLite(TransactionCRUD):
 
         return([self._convert_sqlite_row_to_transaction(row) for row in rows])
 
-    def get_transaction_id(self, t_id: int) -> Transaction:
-        """Return transaction by ID."""
+    def get_transaction_id(self, t_id: int) -> Transaction | None:
+        """Return transaction by ID.
+
+        Returns Transaction is successful (id exists)
+        Returns None if unsuccessful (id does not exist)
+        """
         get_transaction_query = "SELECT * FROM trnsaction WHERE t_id = ?"
         get_transaction_args = (t_id,)
 
@@ -193,7 +201,10 @@ class TransactionSQLite(TransactionCRUD):
         finally:
             cur.close()
 
-        return(self._convert_sqlite_row_to_transaction(row))
+        if row:
+            return(self._convert_sqlite_row_to_transaction(row))
+
+        return None
 
     def update_transaction(self, transaction: Transaction) -> bool:
         """Update a transaction in the database based on Transaction instance."""
