@@ -12,7 +12,7 @@ class TestTransactionCRUD:
         transaction_sqlite_b = TransactionSQLite(db_file = in_memory_db_ref)
         assert transaction_sqlite_a is transaction_sqlite_b
 
-    def test_create_and_get_transactions_filters_sqlite(self,  inmemory_sqlite_db: TransactionSQLite,
+    def test_crud_sqlite(self,  inmemory_sqlite_db: TransactionSQLite,
                                                         sample_transactions: list[Transaction]) -> None:
 
         # DB should be empty before any creates

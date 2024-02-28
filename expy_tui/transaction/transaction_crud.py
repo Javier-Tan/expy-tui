@@ -147,7 +147,7 @@ class TransactionSQLite(TransactionCRUD):
         finally:
             cur.close()
 
-        return([self._convert_sqlite_row_to_transactions(row) for row in rows])
+        return([self._convert_sqlite_row_to_transaction(row) for row in rows])
 
     def get_transaction_by_id(self, t_id: int) -> Transaction:
         """Return transaction by ID."""
