@@ -123,3 +123,11 @@ class TestTransactionCRUD:
                                                                                           value_range = value_range)
         assert date_categories_value_filter_output == expected_transactions_category_date_value
 
+    def test_get_transaction_id(self, inmemory_sqlite_db: TransactionSQLite,
+                                sample_transactions: list[Transaction]) -> None:
+        # Test get_transaction_id method
+        id_one_output = inmemory_sqlite_db.get_transaction_id(1)
+        id_ten_output = inmemory_sqlite_db.get_transaction_id(10)
+
+        assert id_one_output == sample_transactions[0]
+        assert id_ten_output == sample_transactions[9]

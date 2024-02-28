@@ -48,7 +48,7 @@ class TransactionCRUD(ABC):
         """
 
     @abstractmethod
-    def get_transaction_by_id(self, t_id: int) -> Transaction:
+    def get_transaction_id(self, t_id: int) -> Transaction:
         """Return transaction by ID."""
 
     @abstractmethod
@@ -162,8 +162,19 @@ class TransactionSQLite(TransactionCRUD):
 
         return([self._convert_sqlite_row_to_transaction(row) for row in rows])
 
-    def get_transaction_by_id(self, t_id: int) -> Transaction:
+    def get_transaction_id(self, t_id: int) -> Transaction:
         """Return transaction by ID."""
+        get_transaction_query = "SELECT * FROM trnsaction WHERE t_id = ?"
+        get_transaction_query_args = (t_id,)
+
+        cur = self._con.cursor()
+        try:
+            cur.execute(get_transaction_query, get_transaction_query_args)
+            row = cur.fetchone()
+        finally:
+            cur.close()
+
+        return(self._convert_sqlite_row_to_transaction(row))
 
     def update_transaction(self, transaction: Transaction) -> bool:
         """Update a transaction in the database based on Transaction instance."""
