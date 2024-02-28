@@ -141,6 +141,7 @@ class TestTransactionCRUD:
 
     def test_update_transaction_success(self, inmemory_sqlite_db: TransactionSQLite,
                                         sample_transactions: list[Transaction]) -> None:
+
         # Test successful update transaction
         id_one_transaction = sample_transactions[0]
         id_one_original_description = id_one_transaction.description
@@ -155,6 +156,7 @@ class TestTransactionCRUD:
 
     def test_update_transaction_failure(self, inmemory_sqlite_db: TransactionSQLite,
                                         sample_transactions: list[Transaction]) -> None:
+
         id_one_transaction = sample_transactions[0]
 
         # Test failure by no id
@@ -164,7 +166,7 @@ class TestTransactionCRUD:
         assert inmemory_sqlite_db.update_transaction(id_one_transaction) is False
 
         # Test failure by undefined id
-        # Mimic no id by temporarily changing ID to none
+        # Mimic undefined id by temporarily changing ID
         id_one_transaction.t_id = 25
 
         assert inmemory_sqlite_db.update_transaction(id_one_transaction) is False

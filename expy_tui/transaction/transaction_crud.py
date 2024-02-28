@@ -45,6 +45,9 @@ class TransactionCRUD(ABC):
         transactions will come from between these values.
 
         No filters will retrieve all transactions in the database.
+
+        Returns list of transactions if successfully retrieves one or more transactions based on filters
+        Returns empty list if nothing is retrieved
         """
 
     @abstractmethod
@@ -57,11 +60,17 @@ class TransactionCRUD(ABC):
 
     @abstractmethod
     def update_transaction(self, transaction: Transaction) -> bool:
-        """Update a transaction in the database based on Transaction instance."""
+        """Update a transaction in the database based on Transaction instance.
+
+        Returns True if success, False if failed.
+        """
 
     @abstractmethod
     def delete_transaction(self, transaction: Transaction) -> bool:
-        """Delete a transaction in the database based on Transaction instance."""
+        """Delete a transaction in the database based on Transaction instance.
+
+        Returns True if success, False if failed.
+        """
 
 class TransactionSQLite(TransactionCRUD):
     """Implementation of TransactionCRUD using SQLITE."""
@@ -151,6 +160,9 @@ class TransactionSQLite(TransactionCRUD):
         transactions will come from between these values.
 
         No filters will retrieve all transactions in the database.
+
+        Returns list of transactions if successfully retrieves one or more transactions based on filters
+        Returns empty list if nothing is retrieved
         """
         # Get transactions from DB
         get_transaction_query = "SELECT * FROM trnsaction"
@@ -207,7 +219,10 @@ class TransactionSQLite(TransactionCRUD):
         return None
 
     def update_transaction(self, transaction: Transaction) -> bool:
-        """Update a transaction in the database based on Transaction instance."""
+        """Update a transaction in the database based on Transaction instance.
+
+        Returns True if success, False if failed.
+        """
         # Ensure that Transaction has a ID
         if not transaction.t_id:
             return False
@@ -259,7 +274,7 @@ class TransactionSQLite(TransactionCRUD):
 
     def _convert_sqlite_row_to_transaction(
             self, row: sqlite3.Row,
-        ) -> bool:
+        ) -> Transaction:
         """Convert Transaction data rows from db query to Transaction objects."""
         t_id = row["t_id"]
         date_time_epoch = row["date"]
