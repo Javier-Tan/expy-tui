@@ -36,7 +36,16 @@ class TransactionCRUD(ABC):
             categories: list[str] | None = None,
             value_range: tuple[int, int] | None = None,
         ) -> list[Transaction]:
-        """Return list of transactions based on filters date_range and categories."""
+        """Return list of transactions based on filters date_range and categories.
+
+        date_range: Tuple containing 2 datetime variables [start_date, end_date],
+        transactions will come from between these dates.
+        categories: List of categories the transactions will be from.
+        value_range: Tuple containing 2 integers representing values [start_value, end_value],
+        transactions will come from between these values.
+
+        No filters will retrieve all transactions in the database.
+        """
 
     @abstractmethod
     def get_transaction_by_id(self, t_id: int) -> Transaction:
