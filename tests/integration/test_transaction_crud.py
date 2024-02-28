@@ -170,3 +170,33 @@ class TestTransactionCRUD:
         assert inmemory_sqlite_db.update_transaction(id_one_transaction) is False
         # Revert
         id_one_transaction.t_id = 1
+
+    def test_delete_transaction_success(self, inmemory_sqlite_db: TransactionSQLite,
+                                        sample_transactions: list[Transaction]) -> None:
+
+        # Test successful delete transaction
+        id_one_transaction = sample_transactions[0]
+
+        assert inmemory_sqlite_db.delete_transaction(id_one_transaction) is True
+
+        # Add it back
+        inmemory_sqlite_db.create_transaction(id_one_transaction)
+
+    def test_delete_transaction_failure(self, inmemory_sqlite_db: TransactionSQLite,
+                                        sample_transactions: list[Transaction]) -> None:
+
+        id_one_transaction = sample_transactions[0]
+
+        # Test failure by no id
+        # Mimic no id by temporarily changing ID to none
+        id_one_transaction.t_id = None
+
+        assert inmemory_sqlite_db.delete_transaction(id_one_transaction) is False
+
+        # Test failure by undefined id
+        # Mimic undefined id by temporarily changing ID
+        id_one_transaction.t_id = 25
+
+        assert inmemory_sqlite_db.delete_transaction(id_one_transaction) is False
+        # Revert
+        id_one_transaction.t_id = 1

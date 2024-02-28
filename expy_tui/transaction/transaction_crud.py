@@ -237,7 +237,25 @@ class TransactionSQLite(TransactionCRUD):
         return bool(row_updated)
 
     def delete_transaction(self, transaction: Transaction) -> bool:
-        """Delete a transaction in the database based on Transaction instance."""
+        """Delete a transaction in the database based on Transaction instance.
+
+        Returns True if success, False if failed.
+        """
+        # Ensure that Transaction has a ID
+        if not transaction.t_id:
+            return False
+
+        delete_transaction_query = "DELETE FROM trnsaction WHERE t_id = ?"
+        delete_transaction_args = (transaction.t_id,)
+
+        cur = self._con.cursor()
+        try:
+            cur.execute(delete_transaction_query, delete_transaction_args)
+            row_updated = cur.rowcount
+        finally:
+            cur.close()
+
+        return bool(row_updated)
 
     def _convert_sqlite_row_to_transaction(
             self, row: sqlite3.Row,
