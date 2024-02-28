@@ -7,18 +7,16 @@ However it is highly recommended to use venv to develop expy.
 A bash script has been made to setup the virtual environment on linux and install the requirements, simply run `source tools/_setup_venv.sh` from the home directory.
 
 ## TODO List
-### Pending
+### Pending / backlog
 
 - [ ] Write steps to run expy in README.md
 - [ ] Implement TUI
   - [ ] Design TUI
   - [ ] Integrate with backend
+- [ ] Update tests to make integration tests independent (TransactionCRUD)
 
 ### In Progress
 
-- [ ] Develop Transaction / Transaction CRUD backend functionality
-  - [x] Update design to break monolithic test_crud_sqlite test into smaller tests
-  - [ ] Update tests to make integration tests independent
-  - [ ] Add logging
+- [ ] Add logging + traceback (TransactionCRUD)
 
 ### Done ✓

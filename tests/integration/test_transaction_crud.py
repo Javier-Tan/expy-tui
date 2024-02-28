@@ -39,7 +39,7 @@ class TestTransactionCRUD:
 
     def test_get_transactions_date_filter(self, inmemory_sqlite_db: TransactionCRUD,
                                           sample_transactions: list[Transaction]) -> None:
-        # Test date_range filters
+
         # Because transactions are ordered by increasing date, we can test by index order
         start_index = 0
         end_index = 12
@@ -53,6 +53,7 @@ class TestTransactionCRUD:
 
     def test_get_transactions_categories_filter(self, inmemory_sqlite_db: TransactionCRUD,
                                                 sample_transactions: list[Transaction]) -> None:
+
         # We know "Test category1" and "Test category2" can be found from indexes 8 to end
         start_index = 8
         end_index = 23
@@ -64,7 +65,7 @@ class TestTransactionCRUD:
 
     def test_get_transactions_value_filter(self, inmemory_sqlite_db: TransactionCRUD,
                                                 sample_transactions: list[Transaction]) -> None:
-        # Test value_range filters
+
         # We know transactions start at 4444 and increase by 1111 every 6 transactions
         start_index = 6
         end_index = 17
@@ -76,6 +77,7 @@ class TestTransactionCRUD:
 
     def test_get_transactions_multiple_filters(self, inmemory_sqlite_db: TransactionCRUD,
                                                 sample_transactions: list[Transaction]) -> None:
+
         start_date = sample_transactions[0].get_date_epoch() # 2000
         end_date = sample_transactions[12].get_date_epoch() # 2012
         date_range = [start_date, end_date]
