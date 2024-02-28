@@ -165,11 +165,11 @@ class TransactionSQLite(TransactionCRUD):
     def get_transaction_id(self, t_id: int) -> Transaction:
         """Return transaction by ID."""
         get_transaction_query = "SELECT * FROM trnsaction WHERE t_id = ?"
-        get_transaction_query_args = (t_id,)
+        get_transaction_args = (t_id,)
 
         cur = self._con.cursor()
         try:
-            cur.execute(get_transaction_query, get_transaction_query_args)
+            cur.execute(get_transaction_query, get_transaction_args)
             row = cur.fetchone()
         finally:
             cur.close()
@@ -178,6 +178,33 @@ class TransactionSQLite(TransactionCRUD):
 
     def update_transaction(self, transaction: Transaction) -> bool:
         """Update a transaction in the database based on Transaction instance."""
+        # Ensure that Transaction has a ID
+        if not transaction.t_id:
+            return False
+
+        update_transaction_query = """UPDATE trnsaction
+                                      SET date = ?,
+                                          category = ?,
+                                          description = ?,
+                                          value = ?,
+                                          cc_value = ?
+                                      WHERE t_id = ?
+                                   """
+        update_transaction_args = (transaction.get_date_epoch(),
+                                   transaction.category,
+                                   transaction.description,
+                                   transaction.get_value_cents(),
+                                   transaction.get_cc_value_cents(),
+                                   transaction.t_id)
+
+        cur = self._con.cursor()
+        try:
+            cur.execute(update_transaction_query, update_transaction_args)
+            row_updated = cur.rowcount
+        finally:
+            cur.close()
+
+        return bool(row_updated)
 
     def delete_transaction(self, transaction: Transaction) -> bool:
         """Delete a transaction in the database based on Transaction instance."""
