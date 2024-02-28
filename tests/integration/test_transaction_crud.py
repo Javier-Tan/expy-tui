@@ -25,7 +25,7 @@ class TestTransactionCRUD:
 
         # Create all sample transactions
         for sample_transaction in sample_transactions:
-            inmemory_sqlite_db.create_transaction(sample_transaction)
+            assert inmemory_sqlite_db.create_transaction(sample_transaction) is True
 
         # Test get all (should return all transactions if get and create work properly)
         no_filter_output = inmemory_sqlite_db.get_transactions_filters()

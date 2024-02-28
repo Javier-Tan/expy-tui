@@ -98,21 +98,40 @@ class TransactionSQLite(TransactionCRUD):
 
         Returns True if success, False if failed.
         """
-        create_transaction_query = f"""INSERT INTO trnsaction
-                                       (date, category, description, value, cc_value)
-                                       VALUES
-                                       ({transaction.get_date_epoch()},
-                                       "{transaction.category}",
-                                       "{transaction.description}",
-                                       {transaction.get_value_cents()},
-                                       {transaction.get_cc_value_cents()})
+        if transaction.t_id:
+            create_transaction_query = """INSERT INTO trnsaction
+                                        (date, category, description, value, cc_value, t_id)
+                                        VALUES
+                                        (?, ?, ?, ?, ?, ?)
                                     """
+
+            create_transaction_args = (transaction.get_date_epoch(),
+                                    transaction.category,
+                                    transaction.description,
+                                    transaction.get_value_cents(),
+                                    transaction.get_cc_value_cents(),
+                                    transaction.t_id)
+        else:
+            create_transaction_query = """INSERT INTO trnsaction
+                                        (date, category, description, value, cc_value)
+                                        VALUES
+                                        (?, ?, ?, ?, ?)
+                                    """
+
+            create_transaction_args = (transaction.get_date_epoch(),
+                                    transaction.category,
+                                    transaction.description,
+                                    transaction.get_value_cents(),
+                                    transaction.get_cc_value_cents())
 
         cur = self._con.cursor()
         try:
-            cur.execute(create_transaction_query)
+            cur.execute(create_transaction_query, create_transaction_args)
+            row_updated = cur.rowcount
         finally:
             cur.close()
+
+        return bool(row_updated)
 
     def get_transactions_filters(
             self, date_range: tuple[datetime, datetime] | None = None,
