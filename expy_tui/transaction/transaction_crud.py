@@ -101,6 +101,9 @@ class TransactionSQLite(TransactionCRUD):
             cur = cls._con.cursor()
             try:
                 cur.execute(create_transaction_table_query)
+            except sqlite3.Error:
+                del cls._instance
+                return None
             finally:
                 cur.close()
 
@@ -194,6 +197,8 @@ class TransactionSQLite(TransactionCRUD):
         try:
             cur.execute(get_transaction_query)
             rows = cur.fetchall()
+        except sqlite3.Error:
+            return []
         finally:
             cur.close()
 
@@ -212,6 +217,8 @@ class TransactionSQLite(TransactionCRUD):
         try:
             cur.execute(get_transaction_query, get_transaction_args)
             row = cur.fetchone()
+        except sqlite3.Error:
+            return None
         finally:
             cur.close()
 
@@ -248,6 +255,8 @@ class TransactionSQLite(TransactionCRUD):
         try:
             cur.execute(update_transaction_query, update_transaction_args)
             row_updated = cur.rowcount
+        except sqlite3.Error:
+            return False
         finally:
             cur.close()
 
@@ -269,6 +278,8 @@ class TransactionSQLite(TransactionCRUD):
         try:
             cur.execute(delete_transaction_query, delete_transaction_args)
             row_updated = cur.rowcount
+        except sqlite3.Error:
+            return False
         finally:
             cur.close()
 
