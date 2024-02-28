@@ -17,8 +17,8 @@ class TestTransactionCRUD:
     # Tests from here on are dependent on this create test passing.
     # It's recommended to run these tests as a complete file
     @pytest.mark.order(1)
-    def test_create_get_all_sqlite(self,  inmemory_sqlite_db: TransactionSQLite,
-                                   sample_transactions: list[Transaction]) -> None:
+    def test_create_and_get_all_transactions(self,  inmemory_sqlite_db: TransactionSQLite,
+                                             sample_transactions: list[Transaction]) -> None:
 
         # DB should be empty before any creates
         assert inmemory_sqlite_db.get_transactions_filters() == []
@@ -29,7 +29,13 @@ class TestTransactionCRUD:
 
         # Test get all (should return all transactions if get and create work properly)
         no_filter_output = inmemory_sqlite_db.get_transactions_filters()
-        assert no_filter_output == sample_transactions # Expect all transactions to be added
+        assert no_filter_output == sample_transactions
+
+    def test_create_transactions_failure(self,  inmemory_sqlite_db: TransactionSQLite,
+                                         sample_transactions: list[Transaction]) -> None:
+
+        # Test failure by existing t_id
+        assert inmemory_sqlite_db.create_transaction(sample_transactions[0]) is False
 
     def test_get_transactions_date_filter(self, inmemory_sqlite_db: TransactionSQLite,
                                           sample_transactions: list[Transaction]) -> None:

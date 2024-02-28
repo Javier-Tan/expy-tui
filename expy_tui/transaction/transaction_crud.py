@@ -141,6 +141,8 @@ class TransactionSQLite(TransactionCRUD):
         try:
             cur.execute(create_transaction_query, create_transaction_args)
             row_updated = cur.rowcount
+        except sqlite3.Error:
+            return False
         finally:
             cur.close()
 
