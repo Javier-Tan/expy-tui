@@ -17,6 +17,8 @@ A bash script has been made to setup the virtual environment on linux and instal
 ### In Progress
 
 - [ ] Develop Transaction / Transaction CRUD backend functionality
-  - [ ] Update design to break monolithic test_crud_sqlite test into smaller tests
+  - [x] Update design to break monolithic test_crud_sqlite test into smaller tests
+  - [ ] Update tests to make integration tests independent
+  - [ ] Add logging
 
 ### Done ✓

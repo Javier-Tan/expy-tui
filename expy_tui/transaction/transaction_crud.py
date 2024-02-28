@@ -112,9 +112,13 @@ class TransactionSQLite(TransactionCRUD):
         ) -> list[Transaction]:
         """Return list of transactions based on filters date_range and categories.
 
-        date_range: tuple containing 2 datetime variables [start_date, end_date],
-        will be used as a filter in the query.
+        date_range: Tuple containing 2 datetime variables [start_date, end_date],
+        transactions will come from between these dates.
         categories: List of categories the transactions will be from.
+        value_range: Tuple containing 2 integers representing values [start_value, end_value],
+        transactions will come from between these values.
+
+        No filters will retrieve all transactions in the database.
         """
         # Get transactions from DB
         get_transaction_query = "SELECT * FROM trnsaction"

@@ -1,4 +1,6 @@
 """Provide testing for all classes in transaction module."""
+import pytest
+
 from expy_tui.transaction.transaction import Transaction
 from expy_tui.transaction.transaction_crud import TransactionSQLite
 
@@ -12,8 +14,11 @@ class TestTransactionCRUD:
         transaction_sqlite_b = TransactionSQLite(db_file = in_memory_db_ref)
         assert transaction_sqlite_a is transaction_sqlite_b
 
-    def test_crud_sqlite(self,  inmemory_sqlite_db: TransactionSQLite,
-                                                        sample_transactions: list[Transaction]) -> None:
+    # Tests from here on are dependent on this create test passing.
+    # It's recommended to run these tests as a complete file
+    @pytest.mark.order(1)
+    def test_create_get_all_sqlite(self,  inmemory_sqlite_db: TransactionSQLite,
+                                   sample_transactions: list[Transaction]) -> None:
 
         # DB should be empty before any creates
         assert inmemory_sqlite_db.get_transactions_filters() == []
@@ -26,6 +31,8 @@ class TestTransactionCRUD:
         no_filter_output = inmemory_sqlite_db.get_transactions_filters()
         assert no_filter_output == sample_transactions # Expect all transactions to be added
 
+    def test_get_transactions_date_filter(self, inmemory_sqlite_db: TransactionSQLite,
+                                          sample_transactions: list[Transaction]) -> None:
         # Test date_range filters
         # Because transactions are ordered by increasing date, we can test by index order
         start_index = 0
@@ -38,7 +45,8 @@ class TestTransactionCRUD:
         date_filter_output = inmemory_sqlite_db.get_transactions_filters(date_range=date_range)
         assert date_filter_output == expected_transactions_date_range
 
-        # Test category filters
+    def test_get_transactions_categories_filter(self, inmemory_sqlite_db: TransactionSQLite,
+                                                sample_transactions: list[Transaction]) -> None:
         # We know "Test category1" and "Test category2" can be found from indexes 8 to end
         start_index = 8
         end_index = 23
@@ -48,6 +56,8 @@ class TestTransactionCRUD:
         categories_filter_output = inmemory_sqlite_db.get_transactions_filters(categories=categories)
         assert categories_filter_output == expected_transactions_categories
 
+    def test_get_transactions_value_filter(self, inmemory_sqlite_db: TransactionSQLite,
+                                                sample_transactions: list[Transaction]) -> None:
         # Test value_range filters
         # We know transactions start at 4444 and increase by 1111 every 6 transactions
         start_index = 6
@@ -57,6 +67,16 @@ class TestTransactionCRUD:
         expected_transactions_value_range = sample_transactions[start_index:end_index+1]
         value_filter_output = inmemory_sqlite_db.get_transactions_filters(value_range=value_range)
         assert value_filter_output == expected_transactions_value_range
+
+    def test_get_transactions_multiple_filters(self, inmemory_sqlite_db: TransactionSQLite,
+                                                sample_transactions: list[Transaction]) -> None:
+        start_date = sample_transactions[0].get_date_epoch() # 2000
+        end_date = sample_transactions[12].get_date_epoch() # 2012
+        date_range = [start_date, end_date]
+
+        categories = ["Test category1", "Test category2"]
+
+        value_range = [5555, 6666]
 
         # Test date and categories filters together
         # Transactions with dates between [2000, 2012]
@@ -102,3 +122,4 @@ class TestTransactionCRUD:
                                                                                           categories=categories,
                                                                                           value_range = value_range)
         assert date_categories_value_filter_output == expected_transactions_category_date_value
+
