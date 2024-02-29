@@ -17,6 +17,6 @@ A bash script has been made to setup the virtual environment on linux and instal
 
 ### In Progress
 
-- [ ] Add logging + traceback (TransactionCRUD)
-
 ### Done ✓
+- [x] Implement Transaction and CRUD backend
+- [x] Add logging + traceback (TransactionCRUD)
