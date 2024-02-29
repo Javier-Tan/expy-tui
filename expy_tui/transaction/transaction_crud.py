@@ -10,6 +10,7 @@ trnsaction (
     cc_value int NOT NULL DEFAULT 0
 );
 """
+import logging
 import sqlite3
 from abc import ABC, abstractmethod
 from datetime import datetime
@@ -82,6 +83,8 @@ class TransactionSQLite(TransactionCRUD):
     def __new__(cls, db_file: str) -> None:
         """Implement singleton pattern and performs initialisation for TransactionCRUDSQLite."""
         if cls._instance is None:
+            logging.debug("Initialising database.")
+
             cls._instance = super().__new__(cls)
             cls.__db_file = db_file
             cls._con = sqlite3.connect(cls.__db_file)
@@ -90,8 +93,8 @@ class TransactionSQLite(TransactionCRUD):
 
             create_transaction_table_query = """CREATE TABLE IF NOT EXISTS trnsaction (
                                                 t_id integer PRIMARY KEY AUTOINCREMENT,
-                                                date integer NOT NULL DEFAULT '0',
-                                                category text NOT NULL,
+                                                date integer NOT NULL DEFAULT 0,
+                                                category text NOT NULL DEFAULT '',
                                                 description text,
                                                 value int NOT NULL DEFAULT 0,
                                                 cc_value int NOT NULL DEFAULT 0
@@ -102,6 +105,7 @@ class TransactionSQLite(TransactionCRUD):
             try:
                 cur.execute(create_transaction_table_query)
             except sqlite3.Error:
+                logging.exception("Error initialising database.")
                 del cls._instance
                 return None
             finally:
@@ -114,13 +118,14 @@ class TransactionSQLite(TransactionCRUD):
 
         Returns True if success, False if failed.
         """
+        logging.info("Creating transaction %s in db through SQlite.", transaction)
+
         if transaction.t_id:
             create_transaction_query = """INSERT INTO trnsaction
                                         (date, category, description, value, cc_value, t_id)
                                         VALUES
                                         (?, ?, ?, ?, ?, ?)
                                     """
-
             create_transaction_args = (transaction.get_date_epoch(),
                                     transaction.category,
                                     transaction.description,
@@ -133,7 +138,6 @@ class TransactionSQLite(TransactionCRUD):
                                         VALUES
                                         (?, ?, ?, ?, ?)
                                     """
-
             create_transaction_args = (transaction.get_date_epoch(),
                                     transaction.category,
                                     transaction.description,
@@ -145,6 +149,7 @@ class TransactionSQLite(TransactionCRUD):
             cur.execute(create_transaction_query, create_transaction_args)
             row_updated = cur.rowcount
         except sqlite3.Error:
+            logging.exception("Error creating transaction.")
             return False
         finally:
             cur.close()
@@ -169,6 +174,8 @@ class TransactionSQLite(TransactionCRUD):
         Returns list of transactions if successfully retrieves one or more transactions based on filters
         Returns empty list if nothing is retrieved
         """
+        logging.info("Reading transaction with filters date_range = %s, categories = %s, value_range = %s \
+                     in db through SQlite.", date_range, categories, value_range)
         # Get transactions from DB
         get_transaction_query = "SELECT * FROM trnsaction"
 
@@ -198,6 +205,7 @@ class TransactionSQLite(TransactionCRUD):
             cur.execute(get_transaction_query)
             rows = cur.fetchall()
         except sqlite3.Error:
+            logging.exception("Error getting transactions by filters.")
             return []
         finally:
             cur.close()
@@ -210,6 +218,8 @@ class TransactionSQLite(TransactionCRUD):
         Returns Transaction is successful (id exists)
         Returns None if unsuccessful (id does not exist)
         """
+        logging.debug("Reading transaction with t_id %s in db through SQlite.", t_id)
+
         get_transaction_query = "SELECT * FROM trnsaction WHERE t_id = ?"
         get_transaction_args = (t_id,)
 
@@ -218,6 +228,7 @@ class TransactionSQLite(TransactionCRUD):
             cur.execute(get_transaction_query, get_transaction_args)
             row = cur.fetchone()
         except sqlite3.Error:
+            logging.exception("Error getting transaction by ID.")
             return None
         finally:
             cur.close()
@@ -234,7 +245,10 @@ class TransactionSQLite(TransactionCRUD):
         """
         # Ensure that Transaction has a ID
         if not transaction.t_id:
+            logging.error("Transaction does not have a t_id to update.")
             return False
+
+        logging.info("Updating transaction with t_id %s with %s in db through SQlite.", transaction.t_id, transaction)
 
         update_transaction_query = """UPDATE trnsaction
                                       SET date = ?,
@@ -256,6 +270,7 @@ class TransactionSQLite(TransactionCRUD):
             cur.execute(update_transaction_query, update_transaction_args)
             row_updated = cur.rowcount
         except sqlite3.Error:
+            logging.exception("Error updating transaction.")
             return False
         finally:
             cur.close()
@@ -269,7 +284,10 @@ class TransactionSQLite(TransactionCRUD):
         """
         # Ensure that Transaction has a ID
         if not transaction.t_id:
+            logging.error("Transaction does not have a t_id to delete.")
             return False
+
+        logging.info("Deleting transaction with t_id %s in db through SQlite.", transaction.t_id)
 
         delete_transaction_query = "DELETE FROM trnsaction WHERE t_id = ?"
         delete_transaction_args = (transaction.t_id,)
@@ -279,6 +297,7 @@ class TransactionSQLite(TransactionCRUD):
             cur.execute(delete_transaction_query, delete_transaction_args)
             row_updated = cur.rowcount
         except sqlite3.Error:
+            logging.exception("Error deleting transaction.")
             return False
         finally:
             cur.close()
