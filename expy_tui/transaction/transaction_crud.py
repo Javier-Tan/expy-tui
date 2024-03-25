@@ -87,9 +87,6 @@ class TransactionSQLite(TransactionCRUD):
 
             cls._instance = super().__new__(cls)
             cls.__db_file = db_file
-            cls._con = sqlite3.connect(cls.__db_file)
-            # Converts sqlite fetch from tuples to dictionary-like objects
-            cls._con.row_factory = sqlite3.Row
 
             create_transaction_table_query = """CREATE TABLE IF NOT EXISTS trnsaction (
                                                 t_id integer PRIMARY KEY AUTOINCREMENT,
@@ -101,8 +98,12 @@ class TransactionSQLite(TransactionCRUD):
                                                 );
                                              """
 
-            cur = cls._con.cursor()
             try:
+                cls._con = sqlite3.connect(cls.__db_file)
+                cls._con.execute("PRAGMA foreign_keys = ON")
+                # Converts sqlite fetch from tuples to dictionary-like objects
+                cls._con.row_factory = sqlite3.Row
+                cur = cls._con.cursor()
                 cur.execute(create_transaction_table_query)
             except sqlite3.Error:
                 logging.exception("Error initialising database.")
