@@ -1,16 +1,16 @@
-# Data stored in sqlite3
+# How data is stored in sqlite3
 ```
-Transactions (
- Id            INTEGER                                  PRIMARY KEY,
- Date          INTEGER                                  NOT NULL DEFAULT '0',
- Category      TEXT                                     NOT NULL DEFAULT 'M',
- Description   TEXT CHECK( LENGTH(Description) <= 50 )  NULL DEFAULT NULL,
- Value         INTEGER                                  NOT NULL DEFAULT '0',
- CCValue       INTEGER                                  NOT NULL DEFAULT '0'
+trnsaction (
+ t_id          INTEGER       PRIMARY KEY NOT NULL,
+ date          INTEGER       NOT NULL DEFAULT '0',
+ category      TEXT          NOT NULL DEFAULT "Uncategorised" REFERENCES trnsactino_categories(category),
+ description   TEXT          NULL,
+ value         INTEGER       NOT NULL DEFAULT '0',
+ cc_value      INTEGER       NOT NULL DEFAULT '0'
 )
 
-TransactionDescription (
-  Type    CHAR(1)       PRIMARY KEY NOT NULL,
-  Seq     INTEGER       NOT NULL UNIQUE
+trnsaction_categories (
+ category  TEXT      PRIMARY KEY NOT NULL,
+ seq       INTEGER   UNIQUE NOT NULL
 )
 ```
