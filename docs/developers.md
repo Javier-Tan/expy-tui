@@ -12,11 +12,13 @@ A bash script has been made to setup the virtual environment on linux and instal
 ## TODO List
 ### Pending / backlog
 
+- [ ] Add category tests
 - [ ] Write steps to run expy in README.md
 - [ ] Implement TUI
   - [ ] Design TUI
   - [ ] Integrate with backend
 - [ ] Update tests to make integration tests independent (TransactionCRUD)
+- [ ] Add ability to reorder / delete / mass change trnsaction_categories
 
 ### In Progress
 

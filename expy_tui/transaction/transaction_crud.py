@@ -91,12 +91,21 @@ class TransactionCRUD(ABC):
             bool: True if successfully deleted, False if unsuccessful to delete.
         """
 
+    @abstractmethod
+    def get_categories(self) -> list[str]:
+        """Retrieve list of all categories, also creates transaction category if it doesn't exist.
+
+        Returns:
+            list[str]: A list of category names
+        """
+
 class TransactionSQLite(TransactionCRUD):
     """Implementation of TransactionCRUD using SQLITE."""
 
     _instance = None
     __db_file: str = "expy_tui/data/expy.db"
     _con: sqlite3.Connection = None
+    __categories: list[str] | None = None # Provides naive caching of categories
 
     def __new__(cls, db_file: str) -> None:
         """Implement singleton pattern and performs initialisation for TransactionCRUDSQLite.
@@ -119,12 +128,25 @@ class TransactionSQLite(TransactionCRUD):
             create_transaction_table_query = """CREATE TABLE IF NOT EXISTS trnsaction (
                                                 t_id integer PRIMARY KEY AUTOINCREMENT,
                                                 date integer NOT NULL DEFAULT 0,
-                                                category text NOT NULL DEFAULT '',
+                                                category text NOT NULL DEFAULT "Uncategorised" REFERENCES trnsaction_categories(category),
                                                 description text,
                                                 value int NOT NULL DEFAULT 0,
                                                 cc_value int NOT NULL DEFAULT 0
                                                 );
                                              """
+
+            create_categories_enum_query = """CREATE TABLE IF NOT EXISTS trnsaction_categories (
+                                              category text PRIMARY KEY NOT NULL,
+                                              seq integer UNIQUE NOT NULL
+                                              );
+                                           """
+
+            # Create default category (uncategorised)
+            create_uncategorised_category_query = """INSERT INTO trnsaction_categories
+                                                     (category, seq)
+                                                     VALUES
+                                                     ("Uncategorised", -1)
+                                                  """
 
             try:
                 cls._con = sqlite3.connect(cls.__db_file)
@@ -133,6 +155,8 @@ class TransactionSQLite(TransactionCRUD):
                 cls._con.row_factory = sqlite3.Row
                 cur = cls._con.cursor()
                 cur.execute(create_transaction_table_query)
+                cur.execute(create_categories_enum_query)
+                cur.execute(create_uncategorised_category_query)
             except sqlite3.Error:
                 logging.exception("Error initialising database.")
                 del cls._instance
@@ -143,7 +167,7 @@ class TransactionSQLite(TransactionCRUD):
         return cls._instance
 
     def create_transaction(self, transaction: Transaction) -> bool:
-        """Create transaction record.
+        """Create transaction record, also creates transaction category if it doesn't exist.
 
         Args:
             transaction (Transaction): Transaction data to be written.
@@ -155,6 +179,10 @@ class TransactionSQLite(TransactionCRUD):
             sqlite3.error: Any error sqlite3 may throw
         """
         logging.info("Creating transaction %s in db through SQlite.", transaction)
+
+        # Create category if it doesn't exist
+        if transaction.category not in self.get_categories():
+            self.__create_category(transaction.category)
 
         if transaction.t_id:
             create_transaction_query = """INSERT INTO trnsaction
@@ -365,6 +393,82 @@ class TransactionSQLite(TransactionCRUD):
             cur.close()
 
         return bool(row_updated)
+
+    def get_categories(self) -> list[str]:
+        """Retrieve list of all categories.
+
+        Returns:
+            list[str]: A list of category names
+        """
+        if self.__categories is None:
+            self.__update_categories_cache()
+
+        return self.__categories
+
+    def __create_category(self, category_name: str) -> bool:
+        """Create category.
+
+        Args:
+            category_name (str): Name of category to be created.
+
+        Returns:
+            bool: True if successfully deleted, False if unsuccessful to delete.
+
+        Raises:
+            sqlite3.error: Any error sqlite3 may throw.
+        """
+        logging.info("Creating category %s in db through SQlite.", category_name)
+
+        # Find max seq and increment by 10
+        get_max_seq_query = "SELECT MAX(seq) FROM trnsaction_categories"
+        cur = self._con.cursor()
+        try:
+            cur.execute(get_max_seq_query)
+            row = cur.fetchone()
+            max_seq = max(row["MAX(seq)"], 0)
+        except sqlite3.Error:
+            logging.exception("Error retrieving max seq in categories.")
+            raise
+        finally:
+            cur.close()
+
+        create_category_query = """INSERT INTO trnsaction_categories
+                                        (category, seq)
+                                        VALUES
+                                        (?, ?)
+                                    """
+        create_category_args = (category_name, max_seq+10)
+
+        cur = self._con.cursor()
+        try:
+            cur.execute(create_category_query, create_category_args)
+            row_updated = cur.rowcount
+        except sqlite3.Error:
+            logging.exception("Error creating category.")
+            raise
+        finally:
+            cur.close()
+
+        self.__update_categories_cache()
+
+        return bool(row_updated)
+
+    def __update_categories_cache(self) -> None:
+        """Update internal class categories cache."""
+        logging.info("Retrieving all categories from SQL database.")
+        get_categories_query = "SELECT category FROM trnsaction_categories ORDER BY seq ASC"
+
+        cur = self._con.cursor()
+        try:
+            cur.execute(get_categories_query)
+            rows = cur.fetchall()
+        except sqlite3.Error:
+            logging.exception("Error retrieving categories.")
+            raise
+        finally:
+            cur.close()
+
+        self.__categories = [row["category"] for row in rows]
 
     def _convert_sqlite_row_to_transaction(
             self, row: sqlite3.Row,

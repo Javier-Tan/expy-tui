@@ -37,7 +37,7 @@ class TestTransactionCRUD:
                                          sample_transactions: list[Transaction]) -> None:
 
         # Test failure by existing t_id
-        with pytest.raises(sqlite3.error):
+        with pytest.raises(sqlite3.Error):
             inmemory_sqlite_db.create_transaction(sample_transactions[0])
 
     def test_get_transactions_date_filter(self, inmemory_sqlite_db: TransactionCRUD,
