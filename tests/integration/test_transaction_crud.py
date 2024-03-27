@@ -1,4 +1,6 @@
 """Provide testing for all classes in transaction module."""
+import sqlite3  # Needed for error assertion
+
 import pytest
 
 from expy_tui.transaction.transaction import Transaction
@@ -35,7 +37,8 @@ class TestTransactionCRUD:
                                          sample_transactions: list[Transaction]) -> None:
 
         # Test failure by existing t_id
-        assert inmemory_sqlite_db.create_transaction(sample_transactions[0]) is False
+        with pytest.raises(sqlite3.error):
+            inmemory_sqlite_db.create_transaction(sample_transactions[0])
 
     def test_get_transactions_date_filter(self, inmemory_sqlite_db: TransactionCRUD,
                                           sample_transactions: list[Transaction]) -> None:

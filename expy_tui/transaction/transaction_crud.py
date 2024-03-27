@@ -108,7 +108,7 @@ class TransactionSQLite(TransactionCRUD):
             except sqlite3.Error:
                 logging.exception("Error initialising database.")
                 del cls._instance
-                return None
+                raise
             finally:
                 cur.close()
 
@@ -151,7 +151,7 @@ class TransactionSQLite(TransactionCRUD):
             row_updated = cur.rowcount
         except sqlite3.Error:
             logging.exception("Error creating transaction.")
-            return False
+            raise
         finally:
             cur.close()
 
@@ -207,7 +207,7 @@ class TransactionSQLite(TransactionCRUD):
             rows = cur.fetchall()
         except sqlite3.Error:
             logging.exception("Error getting transactions by filters.")
-            return []
+            raise
         finally:
             cur.close()
 
@@ -230,7 +230,7 @@ class TransactionSQLite(TransactionCRUD):
             row = cur.fetchone()
         except sqlite3.Error:
             logging.exception("Error getting transaction by ID.")
-            return None
+            raise
         finally:
             cur.close()
 
@@ -272,7 +272,7 @@ class TransactionSQLite(TransactionCRUD):
             row_updated = cur.rowcount
         except sqlite3.Error:
             logging.exception("Error updating transaction.")
-            return False
+            raise
         finally:
             cur.close()
 
@@ -299,7 +299,7 @@ class TransactionSQLite(TransactionCRUD):
             row_updated = cur.rowcount
         except sqlite3.Error:
             logging.exception("Error deleting transaction.")
-            return False
+            raise
         finally:
             cur.close()
 
