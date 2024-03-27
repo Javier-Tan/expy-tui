@@ -1,6 +1,6 @@
 """Interface and implementations for creating, reading, updating and deleting transaction data.
 
-All data should be stored in the equivelant of the below SQL example
+How data is stored should be implementation specific, and based off the below SQL example
 trnsaction (
     t_id integer PRIMARY KEY AUTOINCREMENT,
     date integer NOT NULL DEFAULT '0',
@@ -21,14 +21,18 @@ from expy_tui.transaction.transaction import Transaction
 class TransactionCRUD(ABC):
     """Interface for all CRUD relating to transactions.
 
-    Should be a singleton.
+    Should be implemented as a singleton.
     """
 
     @abstractmethod
     def create_transaction(self, transaction: Transaction) -> bool:
-        """Create transaction in the database based on Transaction instance.
+        """Create transaction record.
 
-        Returns True if success, False if failed.
+        Args:
+            transaction (Transaction): Transaction data to be written.
+
+        Returns:
+            bool: True if successfully created, False if unsuccessful to create
         """
 
     @abstractmethod
@@ -37,40 +41,54 @@ class TransactionCRUD(ABC):
             categories: list[str] | None = None,
             value_range: tuple[int, int] | None = None,
         ) -> list[Transaction]:
-        """Return list of transactions based on filters date_range and categories.
+        """Retrieve list of transactions based on filters date_range and categories.
 
-        date_range: Tuple containing 2 datetime variables [start_date, end_date],
-        transactions will come from between these dates.
-        categories: List of categories the transactions will be from.
-        value_range: Tuple containing 2 integers representing values [start_value, end_value],
-        transactions will come from between these values.
+        Args:
+            date_range (tuple[datetime, datetime], optional):
+                Tuple containing 2 datetime variables [start_date, end_date],
+                transactions will come from between these dates (inclusive).
+            categories (list[str], optional):
+                List of categories the transactions will be from.
+            value_range (tuple[int, int], optional):
+                Tuple containing 2 integers representing values [start_value, end_value],
+                transactions will come from between these values (inclusive).
 
-        No filters will retrieve all transactions in the database.
-
-        Returns list of transactions if successfully retrieves one or more transactions based on filters
-        Returns empty list if nothing is retrieved
+        Returns:
+            list[Transaction]: List of transactions which fulfil the filters provided.
         """
 
     @abstractmethod
     def get_transaction_id(self, t_id: int) -> Transaction | None:
-        """Return transaction by ID.
+        """Retrieve transaction by ID.
 
-        Returns Transaction is successful (id exists)
-        Returns None if unsuccessful (id does not exist)
+        Args:
+            t_id (int): Transaction ID we are retrieving.
+
+        Returns:
+            Transaction: Transaction with t_id
+            None: If Transaction with t_id does not exist
         """
 
     @abstractmethod
     def update_transaction(self, transaction: Transaction) -> bool:
-        """Update a transaction in the database based on Transaction instance.
+        """Update transaction record.
 
-        Returns True if success, False if failed.
+        Args:
+            transaction (Transaction): Transaction data to be updated.
+
+        Returns:
+            bool: True if successfully updated, False if unsuccessful to update.
         """
 
     @abstractmethod
     def delete_transaction(self, transaction: Transaction) -> bool:
-        """Delete a transaction in the database based on Transaction instance.
+        """Delete a transaction record.
 
-        Returns True if success, False if failed.
+        Args:
+            transaction (Transaction): Transaction data to be updated.
+
+        Returns:
+            bool: True if successfully deleted, False if unsuccessful to delete.
         """
 
 class TransactionSQLite(TransactionCRUD):
@@ -78,10 +96,20 @@ class TransactionSQLite(TransactionCRUD):
 
     _instance = None
     __db_file: str = "expy_tui/data/expy.db"
-    _con = sqlite3.Connection
+    _con: sqlite3.Connection = None
 
     def __new__(cls, db_file: str) -> None:
-        """Implement singleton pattern and performs initialisation for TransactionCRUDSQLite."""
+        """Implement singleton pattern and performs initialisation for TransactionCRUDSQLite.
+
+        Args:
+            db_file (str): File path to database file, should be the same across every instance.
+
+        Returns:
+            TransactionSQLite: Singleton instance of class.
+
+        Raises:
+            sqlite3.error: Any error sqlite3 may throw.
+        """
         if cls._instance is None:
             logging.debug("Initialising database.")
 
@@ -101,7 +129,7 @@ class TransactionSQLite(TransactionCRUD):
             try:
                 cls._con = sqlite3.connect(cls.__db_file)
                 cls._con.execute("PRAGMA foreign_keys = ON")
-                # Converts sqlite fetch from tuples to dictionary-like objects
+                # Converts sqlite fetch from tuples to dictionary-like "row" objects
                 cls._con.row_factory = sqlite3.Row
                 cur = cls._con.cursor()
                 cur.execute(create_transaction_table_query)
@@ -115,18 +143,25 @@ class TransactionSQLite(TransactionCRUD):
         return cls._instance
 
     def create_transaction(self, transaction: Transaction) -> bool:
-        """Create transaction in the database based on Transaction instance.
+        """Create transaction record.
 
-        Returns True if success, False if failed.
+        Args:
+            transaction (Transaction): Transaction data to be written.
+
+        Returns:
+            bool: True if successfully created, False if unsuccessful to create
+
+        Raises:
+            sqlite3.error: Any error sqlite3 may throw
         """
         logging.info("Creating transaction %s in db through SQlite.", transaction)
 
         if transaction.t_id:
             create_transaction_query = """INSERT INTO trnsaction
-                                        (date, category, description, value, cc_value, t_id)
-                                        VALUES
-                                        (?, ?, ?, ?, ?, ?)
-                                    """
+                                          (date, category, description, value, cc_value, t_id)
+                                          VALUES
+                                          (?, ?, ?, ?, ?, ?)
+                                        """
             create_transaction_args = (transaction.get_date_epoch(),
                                     transaction.category,
                                     transaction.description,
@@ -135,10 +170,10 @@ class TransactionSQLite(TransactionCRUD):
                                     transaction.t_id)
         else:
             create_transaction_query = """INSERT INTO trnsaction
-                                        (date, category, description, value, cc_value)
-                                        VALUES
-                                        (?, ?, ?, ?, ?)
-                                    """
+                                          (date, category, description, value, cc_value)
+                                          VALUES
+                                          (?, ?, ?, ?, ?)
+                                        """
             create_transaction_args = (transaction.get_date_epoch(),
                                     transaction.category,
                                     transaction.description,
@@ -162,18 +197,23 @@ class TransactionSQLite(TransactionCRUD):
             categories: list[str] | None = None,
             value_range: tuple[int, int] | None = None,
         ) -> list[Transaction]:
-        """Return list of transactions based on filters date_range and categories.
+        """Retrieve list of transactions based on filters date_range and categories.
 
-        date_range: Tuple containing 2 datetime variables [start_date, end_date],
-        transactions will come from between these dates.
-        categories: List of categories the transactions will be from.
-        value_range: Tuple containing 2 integers representing values [start_value, end_value],
-        transactions will come from between these values.
+        Args:
+            date_range (tuple[datetime, datetime], optional):
+                Tuple containing 2 datetime variables [start_date, end_date],
+                transactions will come from between these dates (inclusive).
+            categories (list[str], optional):
+                List of categories the transactions will be from.
+            value_range (tuple[int, int], optional):
+                Tuple containing 2 integers representing values [start_value, end_value],
+                transactions will come from between these values (inclusive).
 
-        No filters will retrieve all transactions in the database.
+        Returns:
+            list[Transaction]: List of transactions which fulfil the filters provided.
 
-        Returns list of transactions if successfully retrieves one or more transactions based on filters
-        Returns empty list if nothing is retrieved
+        Raises:
+            sqlite3.error: Any error sqlite3 may throw
         """
         logging.info("Reading transaction with filters date_range = %s, categories = %s, value_range = %s \
                      in db through SQlite.", date_range, categories, value_range)
@@ -206,7 +246,7 @@ class TransactionSQLite(TransactionCRUD):
             cur.execute(get_transaction_query)
             rows = cur.fetchall()
         except sqlite3.Error:
-            logging.exception("Error getting transactions by filters.")
+            logging.exception("Error retrieving transactions by filters.")
             raise
         finally:
             cur.close()
@@ -214,10 +254,17 @@ class TransactionSQLite(TransactionCRUD):
         return([self._convert_sqlite_row_to_transaction(row) for row in rows])
 
     def get_transaction_id(self, t_id: int) -> Transaction | None:
-        """Return transaction by ID.
+        """Retrieve transaction by ID.
 
-        Returns Transaction is successful (id exists)
-        Returns None if unsuccessful (id does not exist)
+        Args:
+            t_id (int): Transaction ID we are retrieving.
+
+        Returns:
+            Transaction: Transaction with t_id
+            None: If Transaction with t_id does not exist
+
+        Raises:
+            sqlite3.error: Any error sqlite3 may throw
         """
         logging.debug("Reading transaction with t_id %s in db through SQlite.", t_id)
 
@@ -229,7 +276,7 @@ class TransactionSQLite(TransactionCRUD):
             cur.execute(get_transaction_query, get_transaction_args)
             row = cur.fetchone()
         except sqlite3.Error:
-            logging.exception("Error getting transaction by ID.")
+            logging.exception("Error retrieving transaction by ID.")
             raise
         finally:
             cur.close()
@@ -240,9 +287,16 @@ class TransactionSQLite(TransactionCRUD):
         return None
 
     def update_transaction(self, transaction: Transaction) -> bool:
-        """Update a transaction in the database based on Transaction instance.
+        """Update transaction record.
 
-        Returns True if success, False if failed.
+        Args:
+            transaction (Transaction): Transaction data to be updated.
+
+        Returns:
+            bool: True if successfully updated, False if unsuccessful to update.
+
+        Raises:
+            sqlite3.error: Any error sqlite3 may throw
         """
         # Ensure that Transaction has a ID
         if not transaction.t_id:
@@ -279,9 +333,16 @@ class TransactionSQLite(TransactionCRUD):
         return bool(row_updated)
 
     def delete_transaction(self, transaction: Transaction) -> bool:
-        """Delete a transaction in the database based on Transaction instance.
+        """Delete a transaction record.
 
-        Returns True if success, False if failed.
+        Args:
+            transaction (Transaction): Transaction data to be updated.
+
+        Returns:
+            bool: True if successfully deleted, False if unsuccessful to delete.
+
+        Raises:
+            sqlite3.error: Any error sqlite3 may throw.
         """
         # Ensure that Transaction has a ID
         if not transaction.t_id:

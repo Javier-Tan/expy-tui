@@ -60,6 +60,9 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 "__init__.py" = [
     "D104",]
 
+[lint.pydocstyle]
+convention = "google"
+
 [format]
 # Like Black, use double quotes for strings.
 quote-style = "double"

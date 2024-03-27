@@ -6,6 +6,9 @@ However it is highly recommended to use venv to develop expy.
 
 A bash script has been made to setup the virtual environment on linux and install the requirements, simply run `source tools/_setup_venv.sh` from the home directory.
 
+## Developer notes
+- Docstrings are written in [Google docstring style](https://google.github.io/styleguide/pyguide.html#383-functions-and-methods)
+
 ## TODO List
 ### Pending / backlog
 
